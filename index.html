@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Minification and Watches with Gruntjs</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <link href='http://fonts.googleapis.com/css?family=Oxygen' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Oxygen+Mono' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=PT+Sans' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="./css/main.css">
+</head>
+<body>
+    <header>
+        <h1 id="logo">
+            Minification and Watches<br><span>with Grunt.js</span>
+        </h1>
+    </header>
+    <div id="nav">
+        <ul>
+            <li>Jump to:</li>
+            <li><a href="#whyminify">Why Minify?</a></li>
+            <li><a href="#entergrunt">Enter: Grunt.js</a></li>
+            <li><a href="#modules">Modules</a></li>
+            <li><a href="#cssmin">CSSMin</a></li>
+            <li><a href="#uglify">Uglify.js</a></li>
+            <li><a href="#watchingthewatches">Watches</a></li>
+            <li><a href="#troubleshooting">Troubleshooting</a></li>
+            <li><a href="#moretoit">More to It</a></li>
+        </ul>
+    </div>
+    
+    <script>
+    // Controls the showing and hiding the moving navbar.
+    var threshold = 450;
+    
+    $( document ).ready( function() {
+        $( "#nav" ).hide(); 
+    });
+        
+    $( window ).on( 'scroll', function () {
+        if ( $( window ).scrollTop() < threshold) {
+            $( "#nav" ).hide(200);
+        }
+        else {
+            $( "#nav" ).show(700);   
+        }
+    });
+    
+    </script>
+    
+    <div class="main-wrapper">
+        <div class="container">
+        
+        <h2 id="whyminify"><span>Why Minify?</span></h2>
+        <p>Or for that matter, why bother with something like Grunt, Node, Require, Jasmine at all? Well, that largely depends on the scope and type of your project. Certainly, you don't want to waste valuable development time minifying JavaScript when you could be out there hacking away at some navigation panel that breaks everytime you resize it in IE 8. <em>Sigh...</em></p>
+        <p>Yet, minification is a valuable process for almost any project with a significant amount of CSS, Sass, Less, or JavaScript files. Consider the following:</p>
+            
+        <div  class="code-block">
+        <code><pre>
+            &ltlink rel="stylesheet" type="text/css" href="/css/normalize.css"&gt <br>
+            &ltlink rel="stylesheet" type="text/css" href="/css/style.css"&gt <br>
+            &ltlink rel="stylesheet" type="text/css" href="/css/desktop.css"&gt <br>
+            &ltlink rel="stylesheet" type="text/css" href="/css/tablet.css"&gt <br>
+            &ltlink rel="stylesheet" type="text/css" href="/css/mobile.css"&gt <br>
+            &ltscript rel="stylesheet" type="text/javascript" src="/js/jquery.js"&gt <br>
+            &ltscript rel="stylesheet" type="text/javascript" src="/js/respond.js"&gt <br>
+            &ltscript rel="stylesheet" type="text/javascript" src="/js/carousel.js"&gt <br>
+            &ltscript rel="stylesheet" type="text/javascript" src="/js/slider.js"&gt
+        </pre></code>
+        </div>
+            
+        <p>This is not that uncommon of a sight. Even a small project has several stylesheets, JavaScript dependencies, and other required sources and plugins. Having something like the code above is fine for development - in fact, compartmentalizing JavaScript and stylesheets is a great way to avoid errors and isolate bugs. But for a production build, there is a slight problem.</p>
+        <p>Suppose the site you're woking on starts getting a lot of activity. Suddenly, load times start to increase, especially across weak connections like public WiFi or mobile networks. You gasp as load times increase from milliseconds to whole fractions of a second. <em>Gasp!</em> Why, you ask, why? Well, the server is spitting out a lot of files which may be filled with unnecessary comments and whitespace. Minify, concatenate, compress, and suddenly you can have something like the following:</p>
+            
+        <div  class="code-block">    
+        <code><pre>
+            &ltlink rel="stylesheet" type="text/css" href="/css/styles.min.css"&gt <br>
+            &ltscript rel="stylesheet" type="text/javascript" src="/js/main.min.js"&gt
+        </pre></code>
+        </div>
+            
+        <p>You breathe a sigh of relief as your production build now looks crisp, clean, and wonderful. Well, at least the header does...</p>
+        
+        <h2 id="entergrunt"><span>Enter: Grunt.js</span></h2>
+        <p>So, how can you make this magic happen without eating up precious minutes of your workflow? Grunt Task Runner, of course! Let's get started then, shall we?</p>
+        <p>The first step, unsurprisingly, is to grab <a href='http://nodejs.org/'>Node.js</a>. Installing Node is really easy, as it has installers for all major operating systems. I'll just ponder the meaning of the universe while you get Node set up...</p>
+        <p>Alright, good to go? Here's where the fun begins! Node has a built-in modules which can be installed using <code>npm</code>. That's how we're going to be installing Grunt. Even if you're very unfamiliar with the command-line, most of what we'll be doing with Node and Grunt are pretty straightforward. Navigate to whatever command line tool you use for your operating system and (with administrator privileges) type <code>npm install grunt-cli -g</code>. This installs Grunt's Command Line Interface, which will allow your command line tool to understand what a Grunt command is.</p>
+        <p>In fact, you can try this out right away. Enter <code>grunt</code> into the command line, and you should see something like this: <img src='./img/gruntnolocalfile.png'></p>
+        <p>Of course, Grunt will now be very confused, as it says you didn't specify a Gruntfile. Well, let's resolve that. In your working directory, create two files. The first should be called <code>Gruntfile.js</code> and the second should be called <code>package.json</code>. While the former is used for executing tasks via Grunt, the latter is used for project dependencies in Node. This will come into play later after Grunt is set up to actually <em>do</em> something. <img src='./img/gruntintro.png'></p>
+        <p>Notice the fun little <code>Gruntfile.js</code> and <code>package.json</code> in the working directory. There are very strict <a href='https://www.npmjs.org/doc/files/package.json.html'>specifications</a> on how to set up your <code>package.json</code>, but for the sake of simplicity, you can set up your starter file like this:
+        
+        <div  class="code-block">
+        <code><pre>
+{
+  "name": "grunt-demo",
+  "version": "0.0.0",
+  "author": "Logan Sobczak",
+  "description": "A fun description!"
+}
+        </pre></code>
+        </div>
+                
+        <p>To set up your dependencies for Grunt, run <code>npm install grunt --save-dev</code>.<img src='./img/gruntsetup2.png'>This will also create a directory called node_modules. You might get a few warnings, but you can ignore them for now. To set up Grunt, open up your Grunfile.js and plugin:</p>
+        
+        <div  class="code-block">    
+        <code><pre>
+module.exports = function(grunt) {
+
+    grunt.registerTask('default', ['TASK']);
+
+    grunt.initConfig({
+        pkg: grunt.file.readJSON('package.json')
+    });
+
+};   
+        </pre></code>
+        </div>
+            
+        
+        <h2 id="modules"><span>Modules</span></h2>
+        <p>You'll notice that it this point, you still cannot actually <em>run</em> Grunt. Remember, Grunt is a task runner - it just does stuff for you. Right now, its default task is some task called TASK. This is a placeholder, and running <code>grunt default</code> or just <code>grunt</code> (default is assumed) will generate an error.
+        </p>
+        
+        <h3 id="cssmin"><span>CSSMin</span></h3>
+        <p>Let's start by minifying our CSS files. To do so, run the command<code>npm install grunt-contrib-cssmin --save-dev</code>. This will grab <a href='https://github.com/gruntjs/grunt-contrib-cssmin'>CSSMin</a>, nice little minification module and install it to the working directory. Node will automatically include it as a dependency in <code>package.json</code>, but Grunt won't do anything with it to start.</p>
+        <p>Let's make some changes and set up the module. Inside your <code>Gruntfile.js</code>, add the following lines of code:</p>
+            
+        <div  class="code-block">    
+        <code><pre>
+module.exports = function(grunt) {
+
+    grunt.registerTask('default', ['cssmin']);
+
+    grunt.initConfig({
+        pkg: grunt.file.readJSON('package.json'),
+        cssmin: {
+            combine: {
+                files: {
+                'css/styles.min.css': ['css/main.css', 'css/desktop-1000px.css']
+                }
+            }
+        }
+    });
+    
+    grunt.loadNpmTasks('grunt-contrib-cssmin');
+};    
+        </pre></code>
+        </div>    
+            
+        <p>This does a few things. First, it sets up the target files of the CSS minifier's <code>combine</code> function. This could also be called <code>build</code> or <code>dist</code>, it's just that the task itself has to be called <code>cssmin</code>. In my working directory, the output is <code>styles.min.css</code> and the example input files are an array, <code>main.css</code> and <code>desktop-1000px.css</code>. The code they contain isn't very interesting...<img src='./img/cssmin1.png'><img src='./img/cssmin2.png'></p>
+        <p>But let's see what minification will do to them. To run our newly configured CSS minifier, set up your input and output files and directories and run <code>grunt</code> in the command line. If all goes well, you should see something like this: <img src='./img/cssmin3.png'></p>
+        <p>If you get errors, check over the <code>Gruntfile.js</code> for syntax errors.<img src='./img/cssmin4.png'></p>
+        <p>The output is stripped of whitespace and newline characters:<img src='./img/cssmin5.png'></p>
+        <p>You can also use <code>/*.css</code> to target all CSS files in the source directory, minifying them into a single destination file.<img src='./img/cssmin6.png'></p>
+        <p>Remember, though, using <code>/*.css</code> will gather all source files as they are listed, minifying them in order. If CSS files need to be minified in a particular order - for example, a normalizer must be loaded before a responsive framework, which both need to be loaded before custom styling - it might be better to list files sequentially in the file source array. This ensures that certain style rules in the minified CSS don't override style rules that were supposed to have higher precedence.</p>
+        
+        <h3 id="uglify"><span>Uglify.js</span></h3>
+        <p>In a very similar fashion as CSSMin, <a href='https://github.com/mishoo/UglifyJS'>Uglify.js</a> performs minification on JavaScript files. It's also easy to set up by first running <code>npm install grunt-contrib-uglify --save-dev</code> and changing a few lines of the <code>Grunfile.js</code>:</p>
+            
+        <div  class="code-block">    
+        <code><pre>
+module.exports = function(grunt) {
+
+    grunt.registerTask('default', ['cssmin','uglify']);
+    grunt.registerTask('uglify', ['uglify']);
+    
+    grunt.initConfig({
+        pkg: grunt.file.readJSON('package.json'),
+        cssmin: {
+            combine: {
+                files: {
+                'css/styles.min.css': ['css/*.css']
+                }
+            }
+        },
+        uglify: {
+            target: {
+                files: {
+                'js/main.min.js': ['js/jquery-2.1.1.js' , 'sample.js']
+                }
+            }
+        }
+    });
+    
+    grunt.loadNpmTasks('grunt-contrib-cssmin');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    
+};
+        </pre></code>
+        </div>    
+        
+        <p>You'll notice that the syntax is generally the same as the CSS minifier. Remember that each task supplied into<code>grunt.initConfig()</code> must be separated by a comma. You can also specify new tasks, as has been done above. Now calling <code>grunt uglify</code> minifies the JavaScript but not the CSS. When using a large number of tasks in Grunt, it helps to break them apart. If you're only working on your JavaScript sources or Sass files, there's no need to recompile or minify the rest of your directory.</p>
+        <p>Remember that, as when combining multiple CSS files, Uglify works in order. This is especially important when dealing with jQuery plugins, which have to load after jQuery itself has loaded. If Uglify tacks jQuery onto the end of your minified JavaScript file, bad things will happen. Don't do it.</p>
+        
+        <h2 id="watchingthewatches"><span>Watching the Watches</span></h2>
+        <p>Finally, let's set up some watches. This is where Grunt really shines. Grab <a href='https://github.com/gruntjs/grunt-contrib-watch'>Grunt Watch</a> by using <code>npm install grunt-contrib-watch --save-dev</code> and then by modifying <code>Gruntfile.js</code>:</p>
+            
+    <div  class="code-block">        
+    <code><pre>
+module.exports = function(grunt) {
+
+    grunt.registerTask('default', ['watch']);
+    grunt.registerTask('uglify', ['uglify']);
+    grunt.registerTask('cssmin', ['cssmin']);
+    
+    grunt.initConfig({
+        pkg: grunt.file.readJSON('package.json'),
+        cssmin: {
+            combine: {
+                files: {
+                'css/styles.min.css': ['css/*.css']
+                }
+            }
+        },
+        uglify: {
+            target: {
+                files: {
+                'js/main.min.js': ['js/jquery-2.1.1.js' , 'sample.js']
+                }
+            }
+        },
+        watch: {
+            scripts: {
+                files: ['js/*.js'],
+                tasks: ['uglify'],
+            },
+            css: {
+                files: ['css/*.css'],
+            tasks: ['cssmin'],
+            },
+        },
+    });
+    
+    grunt.loadNpmTasks('grunt-contrib-cssmin');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-watch');
+    
+};
+    </pre></code>
+    </div>    
+        
+    <p>A few things have changed. For one, <code>'default'</code> no longer executes the other tasks. Instead, it starts a watch. Watch does pretty much what you would expect: it watches your specified directories for additions and deletions or changes in the files themselves. When that happens, watch fires off another task and then waits for more changes.</p>
+    <p>Now when you run <code>grunt</code> in the console, you'll notice that this happens:<img src='./img/gruntwatch1.png'></p>
+    <p>It's a good time to remember that <code>ctrl+c</code> will kill a process in the terminal, because watch will continue to watch for changes until you close the window or kill it. You will also notice that adding a line to either your CSS files or JavaScript files will cause it to re-minify both.</p>
+    <p>Watch is especially useful when making changes to a site that runs off the minified CSS or JavaScript. For example, you can break apart your CSS into files based on screen size, edit them as needed, and refresh your browser to view changes without having to manually re-minify your <code>main.min.css</code> file. You can even host a local server using something like <a href="https://github.com/gruntjs/grunt-contrib-connect">Grunt Connect</a> and then use watch's live reload option.</p>
+        
+        <h3 id="troubleshooting"><span>Troubleshooting</span></h3>
+        <p>One thing I have to say about Grunt is that the documentation for certain plugins in sometimes unclear. That said, here's an important thing you should note while setting up your <code>Gruntfile.js</code>.</p>
+        <p>Consider this innocent mistake:</p>
+            
+        <div  class="code-block">    
+        <code><pre>
+module.exports = function(grunt) {
+
+    grunt.initConfig({
+        pkg: grunt.file.readJSON('package.json'),
+        cssmin: {
+            combine: {
+                files: {
+                'css/styles.min.css': ['css/main.css', 'css/desktop-1000px.css']
+                }
+            }
+        }
+    });
+    
+    grunt.loadNpmTasks('grunt-contrib-cssmin');
+    
+    grunt.registerTask('cssmin', ['cssmin']);
+}; 
+        </pre></code>
+        </div>    
+            
+            <p>The only difference here is that th e task <code>cssmin</code> is registered after the config and load. Running <code>grunt cssmin</code> will produce the following:<img src='./img/trouble1.png'></p>
+        <p>This causes a recursive call of <code>cssmin</code> until overflow occurs. It can be solved by prefixing the task (like using <code>task-cssmin</code> as the task name), or by just placing the declaration of the task before it is loaded and initialized. The latter is much safer and less prone to error.</p>
+        <p>Doing this for the watch task causes the puzzling situation of a watch executing without changes to the working directory and promptly closing. This, surprisingly, was not stressed in other documentation. <strong>Do not register the tasks after they are loaded.</strong> There, now everything is clear.</p>
+    <h2 id="moretoit"><span>More to It</span></h2>
+    <p>There is a lot more to what Grunt can do than was covered here, even in the plugins I covered. The options are fantastic, and using Node to install everything makes the whole process very painless. This is intended to be pretty basic, but it gets you setup with Grunt in a way that's meaningful for most projects. Try out of some of these other plugins, if you're interested.</p>
+    <h3><span>Autoprefixer</span></h3>
+    <p>Have you ever stared a <code>transition</code> or <code>transform</code> style rule and suddenly realized that you should probably throw a vendor prefix into your CSS? Well, with <a href="https://github.com/nDmitry/grunt-autoprefixer/blob/master/package.json">Autoprefixer</a>, you no longer have to worry about looking up what style rules need those -o-,-moz-, and -webkit- prefixes. By using autoprefixer at build time, vendor prefixes are automatically added to the CSS, ensuring maximum cross-browser compatibility for newer CSS elements.</p>
+    <h3><span>UnCSS</span></h3>
+    <p>If you're using a framework such as Twitter Bootstrap or jQuery Mobile, chances are you aren't using <em>all</em> the CSS rules provided by these rather expansive frameworkjygrewzaQ`1y, the unused CSS rules would just float around in the nether of your compiled CSS, wasting precious bytes of space with unneeded <code>.button-wide</code> or <code>.well-large</code> style rules. With <a href="https://github.com/addyosmani/grunt-uncss">UnCSS</a>, you can automatically remove these items from you CSS at build time, further shrinking the file size of your CSS and automatically cleaning up your code. And if you feel like using those elements sometime later, they still exist in your framework's stylesheets, just not on the compiled and compressed build CSS. UnCSS can also remove style elements that you might have added for testing purposes but forgot to remove. This is especially common on larger projects where multiple developers might accidentally commit test styles without commenting them out or deleting them.</p>
+    <h3><span>Grunt Connect</span></h3>
+    <p>If you want to enable the live reload for Grunt Watch, you'll need to pick up <a href="https://github.com/gruntjs/grunt-contrib-connect">Grunt Connect</a>. This lightweight local server allows live reload to function with watches and also enables things like AJAX and PHP to function locally. It's a great tool, though Node itself has a <a href="https://www.npmjs.org/package/http-server">simple http server</a> which works, as well.</p>
+    <p>Ultimately, the name of the game is automation. The less you have to do on your own as far as getting files minified, prefix, and organized, the better. As projects grow in scope, task runners like Grunt become more and more useful.</p>
+        </div>
+    </div>
+</body>
+</html>
+

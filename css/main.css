@@ -1,0 +1,199 @@
+:root {
+    margin: 0;
+    padding: 0;
+    font-family: 'PT Sans', sans-serif;
+    color: #fff;
+}
+
+@media screen and (min-width: 1025px) {
+    :root {
+        font-size: 18px;  
+    }
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #1f2124;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Oxygen', sans-serif;
+}
+
+/***************************
+Logo
+***************************/
+
+header {
+    border-bottom: 3px solid #3ea3ca;
+}
+
+#logo {
+    text-align: center;
+    margin: .5em 0;
+    line-height: 1.5em;
+    letter-spacing: .15em;
+}
+
+#logo span {
+    font-size: .75em;
+    letter-spacing: .10em;
+}
+
+/***************************
+Main Content Area
+***************************/
+
+.main-wrapper {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    
+    border-top: 3px solid #5d6f64;
+    background-color: rgb(72, 74, 82);
+}
+
+.container {
+    margin: 0 auto;
+    padding: 1em;
+    width: 80%;
+}
+
+/***************************
+Paragraph and Headings
+***************************/
+
+p {
+    padding: .3em;
+    line-height: 1.4em;
+}
+
+h2 {
+    padding: 1em 0 0;
+    text-align: center;
+    border-top: 3px solid #ed852b;
+}
+
+h2 span {
+    border-radius: 10px;
+    padding: .1em 2em;
+    background: #12202c;
+}
+
+h3 {
+    text-align: center;
+}
+
+h3 span {
+    border-radius: 10px;
+    padding: .1em 2em;
+    background: #12202c;
+}
+
+p img {
+    padding: 1em;
+    max-width: 650px;
+    display: block;
+    margin: 0 auto;
+}
+
+/***************************
+Code and Code-block
+***************************/
+
+code {
+    padding: 0 .2em;
+    letter-spacing: .05em;
+    color: #ffd0ac;
+    font-family: 'Oxygen Mono', monospace;
+}
+
+code pre {
+    padding: 0 .5em;
+    font-family: 'Oxygen Mono', monospace;
+    font-size: .8em;
+}
+
+.code-block {
+    border-radius: 15px;
+    background: #121721;
+}
+
+/***************************
+Href Links
+***************************/
+
+a {
+    border-radius: 10px;
+    padding: .2em;
+    color: #ff8500;
+    font-size: 1.1em;
+    text-decoration: none;
+    -o-transition: .2s;
+    -webkit-transition: .2s;
+    -moz-transition: .2s;
+    transition: .2s;
+}
+
+a:hover {
+    color: #ffbc73;
+    background-color: #121721;
+    -o-transition: .2s;
+    -webkit-transition: .2s;
+    -moz-transition: .2s;
+    transition: .2s;
+}
+
+/***************************
+Floating Navigation
+***************************/
+
+#nav {
+    top: 200px;
+    left: 0;
+    position: fixed;
+    background-color: rgba(33, 29, 57, 0.69);
+}
+
+#nav ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#nav ul li {
+    margin: 0 0 0 .3em;
+    padding: 0;
+    width: 100%;
+    text-transform: uppercase;
+    font-size: .7em;
+    -o-transition: .2s;
+    -webkit-transition: .2s;
+    -moz-transition: .2s;
+    transition: .2s;
+}
+
+#nav ul li:first-child {
+    font-size: .9em;
+    padding: 0 .2em;
+    color: #f2c79b;
+    padding: 1em 0 0;
+}
+
+#nav ul li:last-child {
+    padding: 0 0 1em;
+}
+
+#nav ul li a {
+    padding: 0 .2em;
+    border-radius: 0;
+}
+
+# ul li:hover {
+   background-color: #121721;
+    -o-transition: .2s;
+    -webkit-transition: .2s;
+    -moz-transition: .2s;
+    transition: .2s;
+}
